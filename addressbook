@@ -1,0 +1,110 @@
+import json
+import os
+
+ADDRESS_BOOK_FILE = "address_book.json"
+
+# Load data from file or create empty
+def load_address_book():
+    if os.path.exists(ADDRESS_BOOK_FILE):
+        with open(ADDRESS_BOOK_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+def save_address_book(book):
+    with open(ADDRESS_BOOK_FILE, "w") as f:
+        json.dump(book, f, indent=4)
+
+def create_address_book():
+    save_address_book([])
+    print("Address book created successfully.")
+
+def view_address_book():
+    book = load_address_book()
+    if not book:
+        print("Address book is empty.")
+    else:
+        for idx, record in enumerate(book, 1):
+            print(f"\nRecord {idx}")
+            for key, value in record.items():
+                print(f"{key.capitalize()}: {value}")
+
+def insert_record():
+    name = input("Enter Name: ")
+    phone = input("Enter Phone: ")
+    email = input("Enter Email: ")
+    address = input("Enter Address: ")
+
+    record = {"name": name, "phone": phone, "email": email, "address": address}
+    book = load_address_book()
+    book.append(record)
+    save_address_book(book)
+    print("Record inserted successfully.")
+
+def delete_record():
+    name = input("Enter the name to delete: ")
+    book = load_address_book()
+    updated_book = [record for record in book if record["name"].lower() != name.lower()]
+    
+    if len(book) == len(updated_book):
+        print("Record not found.")
+    else:
+        save_address_book(updated_book)
+        print("Record deleted successfully.")
+
+def modify_record():
+    name = input("Enter the name to modify: ")
+    book = load_address_book()
+    found = False
+    
+    for record in book:
+        if record["name"].lower() == name.lower():
+            print("Enter new details (leave blank to keep unchanged):")
+            new_phone = input("New Phone: ")
+            new_email = input("New Email: ")
+            new_address = input("New Address: ")
+
+            if new_phone:
+                record["phone"] = new_phone
+            if new_email:
+                record["email"] = new_email
+            if new_address:
+                record["address"] = new_address
+            found = True
+            break
+
+    if found:
+        save_address_book(book)
+        print("Record modified successfully.")
+    else:
+        print("Record not found.")
+
+def main():
+    while True:
+        print("\n--- Address Book Menu ---")
+        print("a) Create Address Book")
+        print("b) View Address Book")
+        print("c) Insert Record")
+        print("d) Delete a Record")
+        print("e) Modify a Record")
+        print("f) Exit")
+
+        choice = input("Enter your choice: ").lower()
+
+        if choice == 'a':
+            create_address_book()
+        elif choice == 'b':
+            view_address_book()
+        elif choice == 'c':
+            insert_record()
+        elif choice == 'd':
+            delete_record()
+        elif choice == 'e':
+            modify_record()
+        elif choice == 'f':
+            print("Exiting program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if _name_ == "_main_":
+    main()
