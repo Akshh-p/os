@@ -1,0 +1,42 @@
+import threading
+MAX = 3
+A = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+B = [
+    [9, 8, 7],
+    [6, 5, 4],
+    [3, 2, 1] ]
+C = [[0 for _ in range(MAX)] for _ in range(MAX)]
+
+def multiply_element(row, col, results, index):
+    sum_val = 0
+    for i in range(MAX):
+        sum_val += A[row][i] * B[i][col]
+    results[index] = (row, col, sum_val)
+
+def main():
+    threads = []
+    results = [None] * (MAX * MAX)
+
+    index = 0
+    for i in range(MAX):
+        for j in range(MAX):
+            t = threading.Thread(target=multiply_element, args=(i, j, results, index))
+            threads.append(t)
+            t.start()
+            index += 1
+
+    for t in threads:
+        t.join()
+
+    for row, col, value in results:
+        C[row][col] = value
+
+    print("Result Matrix:")
+    for row in C:
+        print(" ".join(map(str, row)))
+if _name_ == "_main_":
+    main()
