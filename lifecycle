@@ -1,10 +1,9 @@
 import threading
 import time
 
-# A simple class representing a thread task
 class MyThread(threading.Thread):
-    def _init_(self, name, delay):
-        super()._init_()
+    def __init__(self, name, delay):
+        super().__init__()
         self.name = name
         self.delay = delay
 
@@ -16,19 +15,17 @@ class MyThread(threading.Thread):
 def main():
     print("Main thread starting.")
 
-    # Creating two threads
     thread1 = MyThread("Thread-1", 2)
     thread2 = MyThread("Thread-2", 3)
 
-    # Starting the threads (moves from New to Runnable -> Running)
     thread1.start()
     thread2.start()
 
-    # Using join to wait for threads to finish
     thread1.join()
     thread2.join()
 
     print("Main thread finished after both threads completed.")
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
+
