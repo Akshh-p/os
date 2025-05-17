@@ -1,0 +1,70 @@
+import threading
+import time
+import random
+
+# Shared buffer with encapsulation
+class Buffer:
+    def _init_(self, capacity):
+        self.buffer = []
+        self.capacity = capacity
+        self.lock = threading.Lock()
+        self.empty_slots = threading.Semaphore(capacity)
+        self.full_slots = threading.Semaphore(0)
+
+    def produce(self, item, producer_name):
+        self.empty_slots.acquire()
+        with self.lock:
+            self.buffer.append(item)
+            print(f"{producer_name} produced: {item} | Buffer: {self.buffer}")
+        self.full_slots.release()
+
+    def consume(self, consumer_name):
+        self.full_slots.acquire()
+        with self.lock:
+            item = self.buffer.pop(0)
+            print(f"{consumer_name} consumed: {item} | Buffer: {self.buffer}")
+        self.empty_slots.release()
+        return item
+
+# Base thread class (inheritance)
+class WorkerThread(threading.Thread):
+    def _init_(self, buffer, name):
+        super()._init_()
+        self.buffer = buffer
+        self.name = name
+
+# Producer thread (polymorphism via run)
+class Producer(WorkerThread):
+    def run(self):
+        for _ in range(5):
+            item = random.randint(1, 100)
+            self.buffer.produce(item, self.name)
+            time.sleep(random.uniform(0.1, 0.5))
+
+# Consumer thread (polymorphism via run)
+class Consumer(WorkerThread):
+    def run(self):
+        for _ in range(5):
+            self.buffer.consume(self.name)
+            time.sleep(random.uniform(0.1, 0.5))
+
+def main():
+    buffer = Buffer(capacity=5)
+
+    producers = [Producer(buffer, f"Producer-{i+1}") for i in range(2)]
+    consumers = [Consumer(buffer, f"Consumer-{i+1}") for i in range(2)]
+
+    for p in producers:
+        p.start()
+    for c in consumers:
+        c.start()
+
+    for p in producers:
+        p.join()
+    for c in consumers:
+        c.join()
+
+    print("\nAll tasks completed.")
+
+if _name_ == "_main_":
+    main()
